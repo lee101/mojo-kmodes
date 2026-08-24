@@ -1,6 +1,6 @@
 """Compute kernels for k-modes and k-prototypes clustering."""
 
-from std.algorithm import parallelize
+from std.runtime import initialize_runtime
 from std.sys import simd_width_of as simdwidthof
 
 comptime IPtr = UnsafePointer[Int64, AnyOrigin[mut=True]]
@@ -9,6 +9,12 @@ comptime U16Ptr = UnsafePointer[UInt16, AnyOrigin[mut=True]]
 comptime U32Ptr = UnsafePointer[UInt32, AnyOrigin[mut=True]]
 comptime PARALLEL_MIN_WORK = 262144
 comptime PARALLEL_TASKS = 32
+
+
+@export("mkm_initialize_runtime")
+def mkm_initialize_runtime() abi("C"):
+    """Initialize Mojo when loaded as a shared library."""
+    initialize_runtime()
 
 
 def iptr(addr: Int) -> IPtr:
@@ -181,7 +187,8 @@ def matching_dissim_rows(
             )
 
     if n * d >= PARALLEL_MIN_WORK:
-        parallelize[process_chunk](PARALLEL_TASKS)
+        for chunk in range(PARALLEL_TASKS):
+            process_chunk(chunk)
     else:
         for row in range(n):
             fptr(dst)[row] = matching_distance(
@@ -211,7 +218,8 @@ def mode_labels_addresses(
             )
 
     if n * d * k >= PARALLEL_MIN_WORK:
-        parallelize[assign_chunk](PARALLEL_TASKS)
+        for chunk in range(PARALLEL_TASKS):
+            assign_chunk(chunk)
     else:
         for row in range(n):
             u16ptr(labels)[row] = UInt16(
@@ -280,7 +288,8 @@ def encode_unicode_addresses(
                 iptr(dst)[cell] = encoded
 
     if n * d >= PARALLEL_MIN_WORK:
-        parallelize[encode_chunk](PARALLEL_TASKS)
+        for chunk in range(PARALLEL_TASKS):
+            encode_chunk(chunk)
     else:
         encode_chunk(0)
         for chunk in range(1, PARALLEL_TASKS):

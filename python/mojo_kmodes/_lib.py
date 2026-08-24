@@ -28,7 +28,6 @@ _SIGNATURES = {
 }
 
 _library: ctypes.CDLL | None = None
-_cpu_device: int | None = None
 
 
 def _sources() -> list[str]:
@@ -58,15 +57,13 @@ def build(force: bool = False) -> str:
 
 
 def lib() -> ctypes.CDLL:
-    global _cpu_device, _library
+    global _library
     if _library is None:
         _library = ctypes.CDLL(build())
-        initialize = getattr(
-            _library, "KGEN_CompilerRT_AsyncRT_GetOrCreateCPUDevice"
-        )
+        initialize = _library.mkm_initialize_runtime
         initialize.argtypes = []
-        initialize.restype = ctypes.c_void_p
-        _cpu_device = initialize()
+        initialize.restype = None
+        initialize()
         for name, (argtypes, restype) in _SIGNATURES.items():
             function = getattr(_library, name)
             function.argtypes = argtypes
