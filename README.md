@@ -104,11 +104,11 @@ arrays and initialization.
 
 | case | mojo-kmodes | kmodes 0.12.2 | speedup |
 | --- | ---: | ---: | ---: |
-| matching_dissim (1M x 16) | 9.1 ms | 91.7 ms | 10.10x |
-| KModes.predict (200k x 12, k=8) | 30.3 ms | 4477.2 ms | 147.76x |
-| KModes.fit (50k x 10, k=8) | 521.7 ms | 5036.6 ms | 9.65x |
-| KPrototypes.predict (120k, 4 num + 6 cat, k=8) | 209.2 ms | 3374.4 ms | 16.13x |
-| KPrototypes.fit (30k, 3 num + 5 cat, k=6) | 290.3 ms | 4020.4 ms | 13.85x |
+| matching_dissim (1M x 16) | 13.3 ms | 65.5 ms | 4.92x |
+| KModes.predict (200k x 12, k=8) | 248.6 ms | 4421.7 ms | 17.79x |
+| KModes.fit (50k x 10, k=8) | 722.8 ms | 5676.9 ms | 7.85x |
+| KPrototypes.predict (120k, 4 num + 6 cat, k=8) | 334.6 ms | 2977.3 ms | 8.90x |
+| KPrototypes.fit (30k, 3 num + 5 cat, k=6) | 198.1 ms | 3471.7 ms | 17.53x |
 
 The largest gains come from replacing upstream's per-row Python assignment
 loops with one FFI call over the full contiguous dataset. Each timed estimator
